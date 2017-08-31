@@ -1,0 +1,12 @@
+{
+  "name": "bs-json-codec",
+  "version": "0.1.0",
+  "bsc-flags": ["-bs-super-errors"],
+  "sources": [
+    "src",
+    "__tests__"
+  ],
+  "bs-dependencies": [
+    "bs-jest"
+  ]
+}
