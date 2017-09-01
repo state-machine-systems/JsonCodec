@@ -62,11 +62,7 @@ let (>>=) result f =>
   | Result.Error y => Result.Error y
   };
 
-let transform
-    (f: 'b => 'a)
-    (g: 'a => 'b)
-    ((enc, dec): generic_codec 'a 'c 'd)
-    :generic_codec 'b 'c 'd => (
+let wrap (f: 'b => 'a) (g: 'a => 'b) ((enc, dec): generic_codec 'a 'c 'd) :generic_codec 'b 'c 'd => (
   f >>> enc,
   dec >>> map g
 );
@@ -120,9 +116,9 @@ let valid_int (x: float) :decoder_result float => {
 
 let number: codec float = (Json.number, decode_raw_number);
 
-let int: codec int = number |> validate valid_int |> transform float_of_int int_of_float;
+let int: codec int = number |> validate valid_int |> wrap float_of_int int_of_float;
 
-let bool: codec bool = (Json.boolean, decode_raw_bool) |> transform Boolean.to_js_boolean to_bool;
+let bool: codec bool = (Json.boolean, decode_raw_bool) |> wrap Boolean.to_js_boolean to_bool;
 
 let string: codec string = (Json.string, decode_raw_string);
 
@@ -143,7 +139,7 @@ let nullable (codec: codec 'a) :codec (option 'a) => {
     fun
     | Some x => right x
     | None => left ();
-  alt null codec |> transform alt_of_option option_of_alt
+  alt null codec |> wrap alt_of_option option_of_alt
 };
 
 let decode_array_elements
@@ -214,7 +210,7 @@ let optional_nullable (name: Dict.key) (codec: codec 'a) :field_codec (option 'a
     | Some (Some x) => Some x
     | Some None
     | None => None;
-  optional name (nullable codec) |> transform Option.some flatten
+  optional name (nullable codec) |> wrap Option.some flatten
 };
 
 let object0: codec unit = (
