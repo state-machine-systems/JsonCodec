@@ -9,11 +9,11 @@ let () =
       let json_string = "\"foo\"";
       let json_float_array = format_json_string "[1.1, 2.2]";
       let json_empty_object = "{}";
-      let json_single_string_field_object = format_json_string "{\"foo\": \"bar\"}";
-      let json_single_float_field_object = format_json_string "{\"foo\": 12.34}";
-      let json_two_field_object = format_json_string "{\"foo\": \"bar\", \"baz\": true}";
-      let json_three_field_object = format_json_string "{\"foo\": \"bar\", \"baz\": true, \"qux\": 56.78}";
-      let json_four_field_object = format_json_string "{\"foo\": \"bar\", \"baz\": true, \"qux\": 56.78, \"quux\": null}";
+      let json_single_string_field_object = format_json_string {js|{"foo": "bar"}|js};
+      let json_single_float_field_object = format_json_string {js|{"foo": 12.34}|js};
+      let json_two_field_object = format_json_string {js|{"foo": "bar", "baz": true}|js};
+      let json_three_field_object = format_json_string {js|{"foo": "bar", "baz": true, "qux": 56.78}|js};
+      let json_four_field_object = format_json_string {js|{"foo": "bar", "baz": true, "qux": 56.78, "quux": null}|js};
 
       describe "float" (fun () => {
         test "encoding" (fun () =>
@@ -198,6 +198,89 @@ let () =
         );
         test "decoding failure, wrong field type" (fun () =>
           expect (C.decode_json codec json_single_float_field_object) |> toEqual (Js.Result.Error "Expected string")
+        );
+      });
+
+      describe "object4" (fun () => {
+        let codec = C.object4 (C.field "foo" C.string) (C.field "baz" C.bool) (C.field "qux" C.float) (C.field "quux" C.null);
+
+        test "encoding" (fun () =>
+          expect (C.encode_json spaces::0 codec ("bar", true, 56.78, ())) |> toEqual json_four_field_object
+        );
+        test "decoding" (fun () =>
+          expect (C.decode_json codec json_four_field_object) |> toEqual (Js.Result.Ok ("bar", true, 56.78, ()))
+        );
+      });
+
+      describe "object5" (fun () => {
+        let json = format_json_string {js|{"f1": 1, "f2": 2, "f3": 3, "f4": 4, "f5": 5}|js};
+        let codec = C.object5 (C.field "f1" C.int) (C.field "f2" C.int) (C.field "f3" C.int) (C.field "f4" C.int) (C.field "f5" C.int);
+
+        test "encoding" (fun () =>
+          expect (C.encode_json spaces::0 codec (1, 2, 3, 4, 5)) |> toEqual json
+        );
+        test "decoding" (fun () =>
+          expect (C.decode_json codec json) |> toEqual (Js.Result.Ok (1, 2, 3, 4, 5))
+        );
+      });
+
+      describe "object6" (fun () => {
+        let json = format_json_string {js|{"f1": 1, "f2": 2, "f3": 3, "f4": 4, "f5": 5, "f6": 6}|js};
+        let codec = C.object6 (C.field "f1" C.int) (C.field "f2" C.int) (C.field "f3" C.int) (C.field "f4" C.int) (C.field "f5" C.int) (C.field "f6" C.int);
+
+        test "encoding" (fun () =>
+          expect (C.encode_json spaces::0 codec (1, 2, 3, 4, 5, 6)) |> toEqual json
+        );
+        test "decoding" (fun () =>
+          expect (C.decode_json codec json) |> toEqual (Js.Result.Ok (1, 2, 3, 4, 5, 6))
+        );
+      });
+
+      describe "object7" (fun () => {
+        let json = format_json_string {js|{"f1": 1, "f2": 2, "f3": 3, "f4": 4, "f5": 5, "f6": 6, "f7": 7}|js};
+        let codec = C.object7 (C.field "f1" C.int) (C.field "f2" C.int) (C.field "f3" C.int) (C.field "f4" C.int) (C.field "f5" C.int) (C.field "f6" C.int) (C.field "f7" C.int);
+
+        test "encoding" (fun () =>
+          expect (C.encode_json spaces::0 codec (1, 2, 3, 4, 5, 6, 7)) |> toEqual json
+        );
+        test "decoding" (fun () =>
+          expect (C.decode_json codec json) |> toEqual (Js.Result.Ok (1, 2, 3, 4, 5, 6, 7))
+        );
+      });
+
+      describe "object8" (fun () => {
+        let json = format_json_string {js|{"f1": 1, "f2": 2, "f3": 3, "f4": 4, "f5": 5, "f6": 6, "f7": 7, "f8": 8}|js};
+        let codec = C.object8 (C.field "f1" C.int) (C.field "f2" C.int) (C.field "f3" C.int) (C.field "f4" C.int) (C.field "f5" C.int) (C.field "f6" C.int) (C.field "f7" C.int) (C.field "f8" C.int);
+
+        test "encoding" (fun () =>
+          expect (C.encode_json spaces::0 codec (1, 2, 3, 4, 5, 6, 7, 8)) |> toEqual json
+        );
+        test "decoding" (fun () =>
+          expect (C.decode_json codec json) |> toEqual (Js.Result.Ok (1, 2, 3, 4, 5, 6, 7, 8))
+        );
+      });
+
+      describe "object9" (fun () => {
+        let json = format_json_string {js|{"f1": 1, "f2": 2, "f3": 3, "f4": 4, "f5": 5, "f6": 6, "f7": 7, "f8": 8, "f9": 9}|js};
+        let codec = C.object9 (C.field "f1" C.int) (C.field "f2" C.int) (C.field "f3" C.int) (C.field "f4" C.int) (C.field "f5" C.int) (C.field "f6" C.int) (C.field "f7" C.int) (C.field "f8" C.int) (C.field "f9" C.int);
+
+        test "encoding" (fun () =>
+          expect (C.encode_json spaces::0 codec (1, 2, 3, 4, 5, 6, 7, 8, 9)) |> toEqual json
+        );
+        test "decoding" (fun () =>
+          expect (C.decode_json codec json) |> toEqual (Js.Result.Ok (1, 2, 3, 4, 5, 6, 7, 8, 9))
+        );
+      });
+
+      describe "object10" (fun () => {
+        let json = format_json_string {js|{"f1": 1, "f2": 2, "f3": 3, "f4": 4, "f5": 5, "f6": 6, "f7": 7, "f8": 8, "f9": 9, "f10": 10}|js};
+        let codec = C.object10 (C.field "f1" C.int) (C.field "f2" C.int) (C.field "f3" C.int) (C.field "f4" C.int) (C.field "f5" C.int) (C.field "f6" C.int) (C.field "f7" C.int) (C.field "f8" C.int) (C.field "f9" C.int) (C.field "f10" C.int);
+
+        test "encoding" (fun () =>
+          expect (C.encode_json spaces::0 codec (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)) |> toEqual json
+        );
+        test "decoding" (fun () =>
+          expect (C.decode_json codec json) |> toEqual (Js.Result.Ok (1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
         );
       });
 

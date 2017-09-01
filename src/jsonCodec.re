@@ -264,3 +264,171 @@ let decode json => decode_raw_object json >>= fun dict =>
 
   (encode, decode)
 };
+
+let object4 ((enc1, dec1) : field_codec 'a)
+            ((enc2, dec2) : field_codec 'b)
+            ((enc3, dec3) : field_codec 'c)
+            ((enc4, dec4) : field_codec 'd) : codec ('a, 'b, 'c, 'd) => {
+
+  let encode (v1, v2, v3, v4) =>
+    Json.object_ (build_dict [enc1 v1, enc2 v2, enc3 v3, enc4 v4]);
+
+  let decode json => decode_raw_object json >>= fun dict =>
+    dec1 dict >>= fun v1 =>
+    dec2 dict >>= fun v2 =>
+    dec3 dict >>= fun v3 =>
+    dec4 dict >>= fun v4 =>
+    Result.Ok (v1, v2, v3, v4);
+
+  (encode, decode)
+};
+
+let object5 ((enc1, dec1) : field_codec 'a)
+            ((enc2, dec2) : field_codec 'b)
+            ((enc3, dec3) : field_codec 'c)
+            ((enc4, dec4) : field_codec 'd)
+            ((enc5, dec5) : field_codec 'e) : codec ('a, 'b, 'c, 'd, 'e) => {
+
+  let encode (v1, v2, v3, v4, v5) =>
+    Json.object_ (build_dict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5]);
+
+  let decode json => decode_raw_object json >>= fun dict =>
+    dec1 dict >>= fun v1 =>
+    dec2 dict >>= fun v2 =>
+    dec3 dict >>= fun v3 =>
+    dec4 dict >>= fun v4 =>
+    dec5 dict >>= fun v5 =>
+    Result.Ok (v1, v2, v3, v4, v5);
+
+  (encode, decode)
+};
+
+let object6 ((enc1, dec1) : field_codec 'a)
+            ((enc2, dec2) : field_codec 'b)
+            ((enc3, dec3) : field_codec 'c)
+            ((enc4, dec4) : field_codec 'd)
+            ((enc5, dec5) : field_codec 'e)
+            ((enc6, dec6) : field_codec 'f) : codec ('a, 'b, 'c, 'd, 'e, 'f) => {
+
+  let encode (v1, v2, v3, v4, v5, v6) =>
+    Json.object_ (build_dict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5, enc6 v6]);
+
+  let decode json => decode_raw_object json >>= fun dict =>
+    dec1 dict >>= fun v1 =>
+    dec2 dict >>= fun v2 =>
+    dec3 dict >>= fun v3 =>
+    dec4 dict >>= fun v4 =>
+    dec5 dict >>= fun v5 =>
+    dec6 dict >>= fun v6 =>
+    Result.Ok (v1, v2, v3, v4, v5, v6);
+
+  (encode, decode)
+};
+
+let object7 ((enc1, dec1) : field_codec 'a)
+            ((enc2, dec2) : field_codec 'b)
+            ((enc3, dec3) : field_codec 'c)
+            ((enc4, dec4) : field_codec 'd)
+            ((enc5, dec5) : field_codec 'e)
+            ((enc6, dec6) : field_codec 'f)
+            ((enc7, dec7) : field_codec 'g) : codec ('a, 'b, 'c, 'd, 'e, 'f, 'g) => {
+
+  let encode (v1, v2, v3, v4, v5, v6, v7) =>
+    Json.object_ (build_dict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5, enc6 v6, enc7 v7]);
+
+  let decode json => decode_raw_object json >>= fun dict =>
+    dec1 dict >>= fun v1 =>
+    dec2 dict >>= fun v2 =>
+    dec3 dict >>= fun v3 =>
+    dec4 dict >>= fun v4 =>
+    dec5 dict >>= fun v5 =>
+    dec6 dict >>= fun v6 =>
+    dec7 dict >>= fun v7 =>
+    Result.Ok (v1, v2, v3, v4, v5, v6, v7);
+
+  (encode, decode)
+};
+
+let object8 ((enc1, dec1) : field_codec 'a)
+            ((enc2, dec2) : field_codec 'b)
+            ((enc3, dec3) : field_codec 'c)
+            ((enc4, dec4) : field_codec 'd)
+            ((enc5, dec5) : field_codec 'e)
+            ((enc6, dec6) : field_codec 'f)
+            ((enc7, dec7) : field_codec 'g)
+            ((enc8, dec8) : field_codec 'h) : codec ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h) => {
+
+  let encode (v1, v2, v3, v4, v5, v6, v7, v8) =>
+    Json.object_ (build_dict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5, enc6 v6, enc7 v7, enc8 v8]);
+
+  let decode json => decode_raw_object json >>= fun dict =>
+    dec1 dict >>= fun v1 =>
+    dec2 dict >>= fun v2 =>
+    dec3 dict >>= fun v3 =>
+    dec4 dict >>= fun v4 =>
+    dec5 dict >>= fun v5 =>
+    dec6 dict >>= fun v6 =>
+    dec7 dict >>= fun v7 =>
+    dec8 dict >>= fun v8 =>
+    Result.Ok (v1, v2, v3, v4, v5, v6, v7, v8);
+
+  (encode, decode)
+};
+
+let object9 ((enc1, dec1) : field_codec 'a)
+            ((enc2, dec2) : field_codec 'b)
+            ((enc3, dec3) : field_codec 'c)
+            ((enc4, dec4) : field_codec 'd)
+            ((enc5, dec5) : field_codec 'e)
+            ((enc6, dec6) : field_codec 'f)
+            ((enc7, dec7) : field_codec 'g)
+            ((enc8, dec8) : field_codec 'h)
+            ((enc9, dec9) : field_codec 'i) : codec ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i) => {
+
+  let encode (v1, v2, v3, v4, v5, v6, v7, v8, v9) =>
+    Json.object_ (build_dict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5, enc6 v6, enc7 v7, enc8 v8, enc9 v9]);
+
+  let decode json => decode_raw_object json >>= fun dict =>
+    dec1 dict >>= fun v1 =>
+    dec2 dict >>= fun v2 =>
+    dec3 dict >>= fun v3 =>
+    dec4 dict >>= fun v4 =>
+    dec5 dict >>= fun v5 =>
+    dec6 dict >>= fun v6 =>
+    dec7 dict >>= fun v7 =>
+    dec8 dict >>= fun v8 =>
+    dec9 dict >>= fun v9 =>
+    Result.Ok (v1, v2, v3, v4, v5, v6, v7, v8, v9);
+
+  (encode, decode)
+};
+
+let object10 ((enc1, dec1) : field_codec 'a)
+             ((enc2, dec2) : field_codec 'b)
+             ((enc3, dec3) : field_codec 'c)
+             ((enc4, dec4) : field_codec 'd)
+             ((enc5, dec5) : field_codec 'e)
+             ((enc6, dec6) : field_codec 'f)
+             ((enc7, dec7) : field_codec 'g)
+             ((enc8, dec8) : field_codec 'h)
+             ((enc9, dec9) : field_codec 'i)
+             ((enc10, dec10) : field_codec 'j) : codec ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i, 'j) => {
+
+  let encode (v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) =>
+    Json.object_ (build_dict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5, enc6 v6, enc7 v7, enc8 v8, enc9 v9, enc10 v10]);
+
+  let decode json => decode_raw_object json >>= fun dict =>
+    dec1 dict >>= fun v1 =>
+    dec2 dict >>= fun v2 =>
+    dec3 dict >>= fun v3 =>
+    dec4 dict >>= fun v4 =>
+    dec5 dict >>= fun v5 =>
+    dec6 dict >>= fun v6 =>
+    dec7 dict >>= fun v7 =>
+    dec8 dict >>= fun v8 =>
+    dec9 dict >>= fun v9 =>
+    dec10 dict >>= fun v10 =>
+    Result.Ok (v1, v2, v3, v4, v5, v6, v7, v8, v9, v10);
+
+  (encode, decode)
+};
