@@ -101,7 +101,7 @@ let decode_raw_object = decoder_of Json.decodeObject "Expected object";
 
 let decode_raw_array = decoder_of Json.decodeArray "Expected array";
 
-let decode_raw_float = decoder_of Json.decodeNumber "Expected number";
+let decode_raw_number = decoder_of Json.decodeNumber "Expected number";
 
 let decode_raw_bool = decoder_of Json.decodeBoolean "Expected boolean";
 
@@ -109,7 +109,7 @@ let decode_raw_string = decoder_of Json.decodeString "Expected string";
 
 let decode_raw_null = decoder_of Json.decodeNull "Expected null";
 
-let valid_int (x: float) :decoder_result 'float => {
+let valid_int (x: float) :decoder_result float => {
   let x_as_int = int_of_float x;
   if (x == float_of_int x_as_int) {
     Result.Ok x
@@ -118,9 +118,9 @@ let valid_int (x: float) :decoder_result 'float => {
   }
 };
 
-let float: codec float = (Json.number, decode_raw_float);
+let number: codec float = (Json.number, decode_raw_number);
 
-let int: codec int = float |> validate valid_int |> transform float_of_int int_of_float;
+let int: codec int = number |> validate valid_int |> transform float_of_int int_of_float;
 
 let bool: codec bool = (Json.boolean, decode_raw_bool) |> transform Boolean.to_js_boolean to_bool;
 

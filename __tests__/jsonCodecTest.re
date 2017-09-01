@@ -7,23 +7,23 @@ let () =
   describe "JsonCodec"
     ExpectJs.(fun () => {
       let json_string = "\"foo\"";
-      let json_float_array = format_json_string "[1.1, 2.2]";
+      let json_number_array = format_json_string "[1.1, 2.2]";
       let json_empty_object = "{}";
       let json_single_string_field_object = format_json_string {js|{"foo": "bar"}|js};
-      let json_single_float_field_object = format_json_string {js|{"foo": 12.34}|js};
+      let json_single_number_field_object = format_json_string {js|{"foo": 12.34}|js};
       let json_two_field_object = format_json_string {js|{"foo": "bar", "baz": true}|js};
       let json_three_field_object = format_json_string {js|{"foo": "bar", "baz": true, "qux": 56.78}|js};
       let json_four_field_object = format_json_string {js|{"foo": "bar", "baz": true, "qux": 56.78, "quux": null}|js};
 
-      describe "float" (fun () => {
+      describe "number" (fun () => {
         test "encoding" (fun () =>
-          expect (C.encode_json C.float 3.14) |> toEqual "3.14"
+          expect (C.encode_json C.number 3.14) |> toEqual "3.14"
         );
         test "decoding success" (fun () =>
-          expect (C.decode_json C.float "3.14") |> toEqual (Js.Result.Ok 3.14)
+          expect (C.decode_json C.number "3.14") |> toEqual (Js.Result.Ok 3.14)
         );
         test "decoding failure" (fun () =>
-          expect (C.decode_json C.float json_string) |> toEqual (Js.Result.Error "Expected number")
+          expect (C.decode_json C.number json_string) |> toEqual (Js.Result.Error "Expected number")
         );
       });
 
@@ -89,7 +89,7 @@ let () =
           expect (C.encode_json (C.nullable C.string) (Some "foo")) |> toEqual json_string
         );
         test "non-empty decoding success" (fun () =>
-          expect (C.decode_json (C.nullable C.float) "1.0") |> toEqual (Js.Result.Ok (Some 1.0))
+          expect (C.decode_json (C.nullable C.number) "1.0") |> toEqual (Js.Result.Ok (Some 1.0))
         );
         test "decoding failure" (fun () =>
           expect (C.decode_json (C.nullable C.string) "1.0") |> toEqual (Js.Result.Error "Expected string")
@@ -98,22 +98,22 @@ let () =
 
       describe "array" (fun () => {
         test "empty encoding" (fun () =>
-          expect (C.encode_json (C.array C.float) [||]) |> toEqual "[]"
+          expect (C.encode_json (C.array C.number) [||]) |> toEqual "[]"
         );
         test "empty decoding" (fun () =>
           expect (C.decode_json (C.array C.string) "[]") |> toEqual (Js.Result.Ok [||])
         );
         test "non-empty encoding" (fun () =>
-          expect (C.encode_json (C.array C.float) [| 1.1, 2.2 |] |> format_json_string) |> toEqual json_float_array
+          expect (C.encode_json (C.array C.number) [| 1.1, 2.2 |] |> format_json_string) |> toEqual json_number_array
         );
         test "non-empty decoding success" (fun () =>
-          expect (C.decode_json (C.array C.float) json_float_array) |> toEqual (Js.Result.Ok [| 1.1, 2.2 |])
+          expect (C.decode_json (C.array C.number) json_number_array) |> toEqual (Js.Result.Ok [| 1.1, 2.2 |])
         );
         test "decoding failure" (fun () =>
           expect (C.decode_json (C.array C.string) "true") |> toEqual (Js.Result.Error "Expected array")
         );
         test "element decoding failure" (fun () =>
-          expect (C.decode_json (C.array C.string) json_float_array) |> toEqual (Js.Result.Error "Expected string")
+          expect (C.decode_json (C.array C.string) json_number_array) |> toEqual (Js.Result.Error "Expected string")
         );
       });
 
@@ -151,7 +151,7 @@ let () =
           expect (C.decode_json codec "{}") |> toEqual (Js.Result.Error "Field 'foo' not found")
         );
         test "decoding failure, wrong field type" (fun () =>
-          expect (C.decode_json codec json_single_float_field_object) |> toEqual (Js.Result.Error "Expected string")
+          expect (C.decode_json codec json_single_number_field_object) |> toEqual (Js.Result.Error "Expected string")
         );
       });
 
@@ -174,12 +174,12 @@ let () =
           expect (C.decode_json codec json_single_string_field_object) |> toEqual (Js.Result.Error "Field 'baz' not found")
         );
         test "decoding failure, wrong field type" (fun () =>
-          expect (C.decode_json codec json_single_float_field_object) |> toEqual (Js.Result.Error "Expected string")
+          expect (C.decode_json codec json_single_number_field_object) |> toEqual (Js.Result.Error "Expected string")
         );
       });
 
       describe "object3" (fun () => {
-        let codec = C.object3 (C.field "foo" C.string) (C.field "baz" C.bool) (C.field "qux" C.float);
+        let codec = C.object3 (C.field "foo" C.string) (C.field "baz" C.bool) (C.field "qux" C.number);
 
         test "encoding" (fun () =>
           expect (C.encode_json spaces::0 codec ("bar", true, 56.78)) |> toEqual json_three_field_object
@@ -197,12 +197,12 @@ let () =
           expect (C.decode_json codec json_two_field_object) |> toEqual (Js.Result.Error "Field 'qux' not found")
         );
         test "decoding failure, wrong field type" (fun () =>
-          expect (C.decode_json codec json_single_float_field_object) |> toEqual (Js.Result.Error "Expected string")
+          expect (C.decode_json codec json_single_number_field_object) |> toEqual (Js.Result.Error "Expected string")
         );
       });
 
       describe "object4" (fun () => {
-        let codec = C.object4 (C.field "foo" C.string) (C.field "baz" C.bool) (C.field "qux" C.float) (C.field "quux" C.null);
+        let codec = C.object4 (C.field "foo" C.string) (C.field "baz" C.bool) (C.field "qux" C.number) (C.field "quux" C.null);
 
         test "encoding" (fun () =>
           expect (C.encode_json spaces::0 codec ("bar", true, 56.78, ())) |> toEqual json_four_field_object
@@ -321,7 +321,7 @@ let () =
             expect (C.decode_json optional_field_codec json_single_string_field_object) |> toEqual (Js.Result.Ok (Some "bar"))
           );
           test "non-empty decoding failure" (fun () =>
-            expect (C.decode_json optional_field_codec json_single_float_field_object) |> toEqual (Js.Result.Error "Expected string")
+            expect (C.decode_json optional_field_codec json_single_number_field_object) |> toEqual (Js.Result.Error "Expected string")
           );
         });
 
