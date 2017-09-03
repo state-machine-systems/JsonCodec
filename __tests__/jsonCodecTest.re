@@ -3,6 +3,10 @@ module C = JsonCodec;
 
 let format_json_string s => Js.Json.parseExn s |> Js.Json.stringify;
 
+type tree 'a =
+  | Leaf 'a
+  | Branch (tree 'a) (tree 'a);
+
 let () =
   describe "JsonCodec"
     ExpectJs.(fun () => {
@@ -363,5 +367,30 @@ let () =
             expect (C.decode_json flattened_field_codec json_single_string_field_object) |> toEqual (Js.Result.Ok (Some "bar"))
           );
         });
+      });
+
+      describe "recursion" (fun () => {
+        let int_tree = Branch (Branch (Leaf 1) (Leaf 2)) (Leaf 3);
+
+        let int_tree_json = format_json_string {js|{"left": {"left": 1, "right": 2}, "right": 3}|js};
+
+        let alt_of_tree = fun
+        | Leaf x => C.Left x
+        | Branch l r  => C.Right (l, r);
+
+        let tree_of_alt = fun
+        | C.Left x => Leaf x
+        | C.Right (l, r) => Branch l r;
+
+        let codec = JsonCodec.(fix (fun tree =>        
+          alt int (object2 (field "left" tree) (field "right" tree)) |> wrap alt_of_tree tree_of_alt
+        ));
+
+        test "encoding" (fun () =>
+          expect (C.encode_json spaces::0 codec int_tree) |> toEqual int_tree_json
+        );
+        test "decoding" (fun () =>
+          expect (C.decode_json codec int_tree_json) |> toEqual (Js.Result.Ok int_tree)
+        );
       });
     })

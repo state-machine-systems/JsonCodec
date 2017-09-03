@@ -168,6 +168,19 @@ let array ((enc, dec): codec 'a) :codec (Array.t 'a) => {
   (encode, decode)
 };
 
+let fix (f: codec 'a => codec 'a) :codec 'a => {
+  let encoder_ref: ref (option (json_encoder 'a)) = ref None;
+  let decoder_ref: ref (option (json_decoder 'a)) = ref None;
+  let lazy_codec: codec 'a = (
+    fun value => Option.getExn !encoder_ref @@ value,
+    fun json => Option.getExn !decoder_ref @@ json
+  );
+  let (encode, decode) = f (lazy_codec);
+  encoder_ref := Some encode;
+  decoder_ref := Some decode;
+  (encode, decode)
+};
+
 let decode_mandatory_field (decode: json_decoder 'a) name dict :decoder_result 'a =>
   result_of_option (Dict.get dict name) ("Field '" ^ name ^ "' not found") >>= decode;
 
