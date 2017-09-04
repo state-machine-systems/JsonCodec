@@ -374,16 +374,16 @@ let () =
 
         let intTreeJson = formatJsonString {js|{"left": {"left": 1, "right": 2}, "right": 3}|js};
 
-        let treeToAlt = fun
+        let treeToXor = fun
         | Leaf x => C.Left x
         | Branch l r  => C.Right (l, r);
 
-        let altToTree = fun
+        let xorToTree = fun
         | C.Left x => Leaf x
         | C.Right (l, r) => Branch l r;
 
         let codec = JsonCodec.(fix (fun tree =>        
-          alt int (object2 (field "left" tree) (field "right" tree)) |> wrap treeToAlt altToTree
+          xor int (object2 (field "left" tree) (field "right" tree)) |> wrap treeToXor xorToTree
         ));
 
         test "encoding" (fun () =>

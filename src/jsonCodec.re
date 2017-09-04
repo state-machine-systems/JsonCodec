@@ -26,7 +26,7 @@ type fieldDecoder 'a = decoder 'a jsonDict;
 
 type fieldCodec 'a = (fieldEncoder 'a, fieldDecoder 'a);
 
-type alt 'a 'b =
+type xor 'a 'b =
   | Left 'a
   | Right 'b;
 
@@ -34,9 +34,9 @@ let (>>>) f g x => g (f x);
 
 let const x _ => x;
 
-let left a :alt 'a 'b => Left a;
+let left a :xor 'a 'b => Left a;
 
-let right b :alt 'a 'b => Right b;
+let right b :xor 'a 'b => Right b;
 
 let resultOfOption o error =>
   switch o {
@@ -44,8 +44,8 @@ let resultOfOption o error =>
   | None => Result.Error error
   };
 
-let either f g alt =>
-  switch alt {
+let either f g xor =>
+  switch xor {
   | Left x => f x
   | Right y => g y
   };
@@ -124,7 +124,7 @@ let string: codec string = (Json.string, decodeRawString);
 
 let null: codec unit = (const Json.null, decodeRawNull >>> map (const ()));
 
-let alt ((enc1, dec1): codec 'a) ((enc2, dec2): codec 'b) :codec (alt 'a 'b) => (
+let xor ((enc1, dec1): codec 'a) ((enc2, dec2): codec 'b) :codec (xor 'a 'b) => (
   either enc1 enc2,
   fun x =>
     switch (dec1 x) {
@@ -134,12 +134,12 @@ let alt ((enc1, dec1): codec 'a) ((enc2, dec2): codec 'b) :codec (alt 'a 'b) => 
 );
 
 let nullable (codec: codec 'a) :codec (option 'a) => {
-  let altToOption = either (const None) Option.some;
-  let optionToAlt =
+  let xorToOption = either (const None) Option.some;
+  let optionToXor =
     fun
     | Some x => right x
     | None => left ();
-  alt null codec |> wrap optionToAlt altToOption
+  xor null codec |> wrap optionToXor xorToOption
 };
 
 let decodeArrayElements
