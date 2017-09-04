@@ -25,14 +25,14 @@ let codec =
 
 /* Decoding */
 let () =
-  switch (JsonCodec.decode_json codec json) {
+  switch (JsonCodec.decodeJson codec json) {
   | Js.Result.Ok (name, lat, lon, height) =>
     Printf.printf "name='%s' location=%f,%f height=%f\n" name lat lon height
   | Js.Result.Error error => Printf.printf "Decoding error: %s" error
   };
 
 /* Encoding */
-let encoded = JsonCodec.encode_json codec ("Machu Picchu", -13.163333, -72.545556, 2430.0);
+let encoded = JsonCodec.encodeJson codec ("Machu Picchu", -13.163333, -72.545556, 2430.0);
 
 let () = Printf.printf "JSON: %s\n" encoded;
 ```
