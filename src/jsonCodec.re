@@ -38,7 +38,7 @@ let left a :xor 'a 'b => Left a;
 
 let right b :xor 'a 'b => Right b;
 
-let resultOfOption o error =>
+let optionToResult o error =>
   switch o {
   | Some x => Result.Ok x
   | None => Result.Error error
@@ -91,7 +91,7 @@ let encodeJson ::spaces=2 codec a => formatJson (encode codec a) spaces;
 
 let decodeJson codec s => parseJson s >>= decode codec;
 
-let decoderOf f error :jsonDecoder 'a => fun x => resultOfOption (f x) error;
+let decoderOf f error :jsonDecoder 'a => fun x => optionToResult (f x) error;
 
 let decodeRawObject = decoderOf Json.decodeObject "Expected object";
 
@@ -182,7 +182,7 @@ let fix (f: codec 'a => codec 'a) :codec 'a => {
 };
 
 let decodeMandatoryField (decode: jsonDecoder 'a) name dict :decoderResult 'a =>
-  resultOfOption (Dict.get dict name) ("Field '" ^ name ^ "' not found") >>= decode;
+  optionToResult (Dict.get dict name) ("Field '" ^ name ^ "' not found") >>= decode;
 
 let decodeOptionalField (decode: jsonDecoder 'a) name dict :decoderResult (option 'a) =>
   Result.Ok (Dict.get dict name) >>= (
