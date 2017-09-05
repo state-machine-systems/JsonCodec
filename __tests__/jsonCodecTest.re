@@ -26,8 +26,11 @@ let () =
         test "decoding success" (fun () =>
           expect (C.decodeJson C.number "3.14") |> toEqual (Js.Result.Ok 3.14)
         );
-        test "decoding failure" (fun () =>
+        test "decoding failure, not a number" (fun () =>
           expect (C.decodeJson C.number jsonString) |> toEqual (Js.Result.Error "Expected number")
+        );
+        test "decoding failure, invalid JSON" (fun () =>
+          expect (C.decodeJson C.number "_") |> toEqual (Js.Result.Error "Unexpected token _ in JSON at position 0")
         );
       });
 
