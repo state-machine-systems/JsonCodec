@@ -81,7 +81,7 @@ let decode ((_, dec): codec 'a) x => dec x;
 
 let parseJson (s: string) :decoderResult Json.t =>
   try (Result.Ok (Json.parseExn s)) {
-  | _ => Result.Error "JSON parsing failed"
+  | Exn.Error e => Result.Error (Exn.message e |> Option.default "JSON parsing failed")
   };
 
 external formatJson : Json.t => _ [@bs.as {json|null|json}] => int => string =
