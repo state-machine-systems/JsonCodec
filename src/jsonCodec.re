@@ -6,24 +6,12 @@ include JsonCodec_core;
 
 module Function = JsonCodec_function;
 
-type xor 'a 'b =
-  | Left 'a
-  | Right 'b;
-
-let left a :xor 'a 'b => Left a;
-
-let right b :xor 'a 'b => Right b;
+module Xor = JsonCodec_xor;
 
 let optionToResult o error =>
   switch o {
   | Some x => Result.Ok x
   | None => Result.Error error
-  };
-
-let either f g xor =>
-  switch xor {
-  | Left x => f x
-  | Right y => g y
   };
 
 let map f result =>
@@ -98,23 +86,17 @@ let string: Codec.t string = (Json.string, decodeRawString);
 
 let null: Codec.t unit = Function.(const Json.null, decodeRawNull >>> map (const ()));
 
-let xor ((enc1, dec1): Codec.t 'a) ((enc2, dec2): Codec.t 'b) :Codec.t (xor 'a 'b) => (
-  either enc1 enc2,
+let xor ((enc1, dec1): Codec.t 'a) ((enc2, dec2): Codec.t 'b) :Codec.t (Xor.t 'a 'b) => (
+  Xor.either enc1 enc2,
   fun x =>
     switch (dec1 x) {
-    | Result.Ok y => Result.Ok (Left y)
-    | Result.Error _ => map right (dec2 x)
+    | Result.Ok y => Result.Ok (Xor.left y)
+    | Result.Error _ => map Xor.right (dec2 x)
     }
 );
 
-let nullable (codec: Codec.t 'a) :Codec.t (option 'a) => {
-  let xorToOption = either (Function.const None) Option.some;
-  let optionToXor =
-    fun
-    | Some x => right x
-    | None => left ();
-  xor null codec |> wrap optionToXor xorToOption
-};
+let nullable (codec: Codec.t 'a) :Codec.t (option 'a) =>
+  xor null codec |> wrap Xor.fromOption Xor.toOption;
 
 let decodeArrayElements
     (decode: JsonDecoder.t 'a)
