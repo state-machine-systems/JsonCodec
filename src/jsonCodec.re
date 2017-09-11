@@ -4,13 +4,11 @@ open Js;
 
 include JsonCodec_core;
 
+module Function = JsonCodec_function;
+
 type xor 'a 'b =
   | Left 'a
   | Right 'b;
-
-let (>>>) f g x => g (f x);
-
-let const x _ => x;
 
 let left a :xor 'a 'b => Left a;
 
@@ -40,10 +38,8 @@ let (>>=) result f =>
   | Result.Error y => Result.Error y
   };
 
-let wrap (f: 'b => 'a) (g: 'a => 'b) ((enc, dec): GenericCodec.t 'a 'c 'd) :GenericCodec.t 'b 'c 'd => (
-  f >>> enc,
-  dec >>> map g
-);
+let wrap (f: 'b => 'a) (g: 'a => 'b) ((enc, dec): GenericCodec.t 'a 'c 'd) :GenericCodec.t 'b 'c 'd =>
+  Function.(f >>> enc, dec >>> map g);
 
 let validate
     (f: 'a => Decoder.result 'a)
@@ -100,7 +96,7 @@ let bool: Codec.t bool = (Json.boolean, decodeRawBool) |> wrap Boolean.to_js_boo
 
 let string: Codec.t string = (Json.string, decodeRawString);
 
-let null: Codec.t unit = (const Json.null, decodeRawNull >>> map (const ()));
+let null: Codec.t unit = Function.(const Json.null, decodeRawNull >>> map (const ()));
 
 let xor ((enc1, dec1): Codec.t 'a) ((enc2, dec2): Codec.t 'b) :Codec.t (xor 'a 'b) => (
   either enc1 enc2,
@@ -112,7 +108,7 @@ let xor ((enc1, dec1): Codec.t 'a) ((enc2, dec2): Codec.t 'b) :Codec.t (xor 'a '
 );
 
 let nullable (codec: Codec.t 'a) :Codec.t (option 'a) => {
-  let xorToOption = either (const None) Option.some;
+  let xorToOption = either (Function.const None) Option.some;
   let optionToXor =
     fun
     | Some x => right x
@@ -204,10 +200,8 @@ let optionalNullable (name: Dict.key) (codec: Codec.t 'a) :FieldCodec.t (option 
   optional name (nullable codec) |> wrap Option.some flatten
 };
 
-let object0: Codec.t unit = (
-  const (Json.object_ (Dict.empty ())),
-  decodeRawObject >>> map (const ())
-);
+let object0: Codec.t unit =
+  Function.(const (Json.object_ (Dict.empty ())), decodeRawObject >>> map (const ()));
 
 let object1 ((enc1, dec1): FieldCodec.t 'a) :Codec.t 'a => {
   let encode v1 => Json.object_ (buildDict [enc1 v1]);
