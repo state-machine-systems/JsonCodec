@@ -1,33 +1,27 @@
 module A = Array;
 
-open Js;
+module Array = Js.Array;
+
+module Option = Js.Option;
+
+module Json = Js.Json;
+
+module Dict = Js.Dict;
 
 include JsonCodec_core;
 
 module Function = JsonCodec_function;
 
+open Function.Ops;
+
 module Xor = JsonCodec_xor;
 
-let optionToResult o error =>
-  switch o {
-  | Some x => Result.Ok x
-  | None => Result.Error error
-  };
+open Result.Ops;
 
-let map f result =>
-  switch result {
-  | Result.Ok x => Result.Ok (f x)
-  | Result.Error y => Result.Error y
-  };
-
-let (>>=) result f =>
-  switch result {
-  | Result.Ok x => f x
-  | Result.Error y => Result.Error y
-  };
-
-let wrap (f: 'b => 'a) (g: 'a => 'b) ((enc, dec): GenericCodec.t 'a 'c 'd) :GenericCodec.t 'b 'c 'd =>
-  Function.(f >>> enc, dec >>> map g);
+let wrap (f: 'b => 'a) (g: 'a => 'b) ((enc, dec): GenericCodec.t 'a 'c 'd) :GenericCodec.t 'b 'c 'd => (
+  f >>> enc,
+  dec >>> Result.map g
+);
 
 let validate
     (f: 'a => Decoder.result 'a)
@@ -37,23 +31,7 @@ let validate
   fun x => dec x >>= f
 );
 
-let encode ((enc, _): Codec.t 'a) x => enc x;
-
-let decode ((_, dec): Codec.t 'a) x => dec x;
-
-let parseJson (s: string) :Decoder.result Json.t =>
-  try (Result.Ok (Json.parseExn s)) {
-  | Exn.Error e => Result.Error (Exn.message e |> Option.default "JSON parsing failed")
-  };
-
-external formatJson : Json.t => _ [@bs.as {json|null|json}] => int => string =
-  "stringify" [@@bs.val] [@@bs.scope "JSON"];
-
-let encodeJson ::spaces=2 codec a => formatJson (encode codec a) spaces;
-
-let decodeJson codec s => parseJson s >>= decode codec;
-
-let decoderOf f error :JsonDecoder.t 'a => fun x => optionToResult (f x) error;
+let decoderOf f error :JsonDecoder.t 'a => fun x => Result.fromOption (f x) error;
 
 let decodeRawObject = decoderOf Json.decodeObject "Expected object";
 
@@ -80,18 +58,21 @@ let number: Codec.t float = (Json.number, decodeRawNumber);
 
 let int: Codec.t int = number |> validate validInt |> wrap float_of_int int_of_float;
 
-let bool: Codec.t bool = (Json.boolean, decodeRawBool) |> wrap Boolean.to_js_boolean to_bool;
+let bool: Codec.t bool = (Json.boolean, decodeRawBool) |> wrap Js.Boolean.to_js_boolean Js.to_bool;
 
 let string: Codec.t string = (Json.string, decodeRawString);
 
-let null: Codec.t unit = Function.(const Json.null, decodeRawNull >>> map (const ()));
+let null: Codec.t unit = (
+  Function.const Json.null,
+  decodeRawNull >>> Result.map (Function.const ())
+);
 
 let xor ((enc1, dec1): Codec.t 'a) ((enc2, dec2): Codec.t 'b) :Codec.t (Xor.t 'a 'b) => (
   Xor.either enc1 enc2,
   fun x =>
     switch (dec1 x) {
     | Result.Ok y => Result.Ok (Xor.left y)
-    | Result.Error _ => map Xor.right (dec2 x)
+    | Result.Error _ => Result.map Xor.right (dec2 x)
     }
 );
 
@@ -138,12 +119,12 @@ let fix (f: Codec.t 'a => Codec.t 'a) :Codec.t 'a => {
 };
 
 let decodeMandatoryField (decode: JsonDecoder.t 'a) name dict :Decoder.result 'a =>
-  optionToResult (Dict.get dict name) ("Field '" ^ name ^ "' not found") >>= decode;
+  Result.fromOption (Dict.get dict name) ("Field '" ^ name ^ "' not found") >>= decode;
 
-let decodeOptionalField (decode: JsonDecoder.t 'a) name dict :Decoder.result (option 'a) =>
+let decodeOptionalField decode name dict :Decoder.result (option 'a) =>
   Result.Ok (Dict.get dict name) >>= (
     fun
-    | Some x => map Option.some (decode x)
+    | Some x => decode x |> Result.map Option.some
     | None => Result.Ok None
   );
 
@@ -166,10 +147,7 @@ let field (name: Dict.key) ((enc, dec): Codec.t 'a) :FieldCodec.t 'a => (
 );
 
 let optional (name: Dict.key) ((enc, dec): Codec.t 'a) :FieldCodec.t (option 'a) => (
-  /* TODO figure out why Option.map produces a compile error here */
-  fun
-  | Some value => Some (name, enc value)
-  | None => None,
+  Option.map ((fun value => (name, enc value)) [@bs]),
   decodeOptionalField dec name
 );
 
@@ -182,8 +160,10 @@ let optionalNullable (name: Dict.key) (codec: Codec.t 'a) :FieldCodec.t (option 
   optional name (nullable codec) |> wrap Option.some flatten
 };
 
-let object0: Codec.t unit =
-  Function.(const (Json.object_ (Dict.empty ())), decodeRawObject >>> map (const ()));
+let object0: Codec.t unit = (
+  Function.const (Json.object_ (Dict.empty ())),
+  decodeRawObject >>> Result.map (Function.const ())
+);
 
 let object1 ((enc1, dec1): FieldCodec.t 'a) :Codec.t 'a => {
   let encode v1 => Json.object_ (buildDict [enc1 v1]);
