@@ -1,4 +1,4 @@
-# bs-json-codec
+# JsonCodec
 
 ## JSON combinator library for BuckleScript/Reason
 
