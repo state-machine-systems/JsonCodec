@@ -378,12 +378,12 @@ let () =
         let intTreeJson = formatJsonString {js|{"left": {"left": 1, "right": 2}, "right": 3}|js};
 
         let treeToXor = fun
-        | Leaf x => C.Left x
-        | Branch l r  => C.Right (l, r);
+        | Leaf x => C.Xor.left x
+        | Branch l r  => C.Xor.right (l, r);
 
         let xorToTree = fun
-        | C.Left x => Leaf x
-        | C.Right (l, r) => Branch l r;
+        | C.Xor.Left x => Leaf x
+        | C.Xor.Right (l, r) => Branch l r;
 
         let codec = JsonCodec.(fix (fun tree =>        
           xor int (object2 (field "left" tree) (field "right" tree)) |> wrap treeToXor xorToTree
