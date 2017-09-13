@@ -1,5 +1,7 @@
 module Result = JsonCodec_result;
 
+module Util = JsonCodec_util;
+
 open Result.Ops;
 
 module Encoder = {
@@ -45,14 +47,6 @@ let encode ((enc, _): Codec.t 'a) x => enc x;
 
 let decode ((_, dec): Codec.t 'a) x => dec x;
 
-let parseJson (s: string) :Decoder.result Js.Json.t =>
-  try (Result.Ok (Js.Json.parseExn s)) {
-  | Js.Exn.Error e => Result.Error (Js.Exn.message e |> Js.Option.default "JSON parsing failed")
-  };
+let encodeJson ::spaces=2 codec a => Util.formatJson (encode codec a) spaces;
 
-external formatJson : Js.Json.t => _ [@bs.as {json|null|json}] => int => string =
-  "stringify" [@@bs.val] [@@bs.scope "JSON"];
-
-let encodeJson ::spaces=2 codec a => formatJson (encode codec a) spaces;
-
-let decodeJson codec s => parseJson s >>= decode codec;
+let decodeJson codec s => Util.parseJson s >>= decode codec;

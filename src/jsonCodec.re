@@ -1,7 +1,3 @@
-module A = Array;
-
-module Array = Js.Array;
-
 module Option = Js.Option;
 
 module Json = Js.Json;
@@ -31,40 +27,18 @@ let validate
   fun x => dec x >>= f
 );
 
-let decoderOf f error :JsonDecoder.t 'a => fun x => Result.fromOption (f x) error;
+let number: Codec.t float = (Json.number, Util.decodeRawNumber);
 
-let decodeRawObject = decoderOf Json.decodeObject "Expected object";
+let int: Codec.t int = number |> validate Util.validInt |> wrap float_of_int int_of_float;
 
-let decodeRawArray = decoderOf Json.decodeArray "Expected array";
+let bool: Codec.t bool =
+  (Json.boolean, Util.decodeRawBool) |> wrap Js.Boolean.to_js_boolean Js.to_bool;
 
-let decodeRawNumber = decoderOf Json.decodeNumber "Expected number";
-
-let decodeRawBool = decoderOf Json.decodeBoolean "Expected boolean";
-
-let decodeRawString = decoderOf Json.decodeString "Expected string";
-
-let decodeRawNull = decoderOf Json.decodeNull "Expected null";
-
-let validInt (x: float) :Decoder.result float => {
-  let xInt = int_of_float x;
-  if (x == float_of_int xInt) {
-    Result.Ok x
-  } else {
-    Result.Error ("Not an int: " ^ string_of_float x)
-  }
-};
-
-let number: Codec.t float = (Json.number, decodeRawNumber);
-
-let int: Codec.t int = number |> validate validInt |> wrap float_of_int int_of_float;
-
-let bool: Codec.t bool = (Json.boolean, decodeRawBool) |> wrap Js.Boolean.to_js_boolean Js.to_bool;
-
-let string: Codec.t string = (Json.string, decodeRawString);
+let string: Codec.t string = (Json.string, Util.decodeRawString);
 
 let null: Codec.t unit = (
   Function.const Json.null,
-  decodeRawNull >>> Result.map (Function.const ())
+  Util.decodeRawNull >>> Result.map (Function.const ())
 );
 
 let xor ((enc1, dec1): Codec.t 'a) ((enc2, dec2): Codec.t 'b) :Codec.t (Xor.t 'a 'b) => (
@@ -79,29 +53,9 @@ let xor ((enc1, dec1): Codec.t 'a) ((enc2, dec2): Codec.t 'b) :Codec.t (Xor.t 'a
 let nullable (codec: Codec.t 'a) :Codec.t (option 'a) =>
   xor null codec |> wrap Xor.fromOption Xor.toOption;
 
-let decodeArrayElements
-    (decode: JsonDecoder.t 'a)
-    (elements: array Json.t)
-    :Decoder.result (array 'a) => {
-  let length = Array.length elements;
-  let output = [||];
-  let rec loop i =>
-    if (i == length) {
-      Result.Ok output
-    } else {
-      switch (decode (A.get elements i)) {
-      | Result.Ok decoded =>
-        ignore (Array.push decoded output);
-        loop (i + 1)
-      | Result.Error error => Result.Error error
-      }
-    };
-  loop 0
-};
-
-let array ((enc, dec): Codec.t 'a) :Codec.t (Array.t 'a) => {
-  let encode value => Json.array (Array.map enc value);
-  let decode json => decodeRawArray json >>= decodeArrayElements dec;
+let array ((enc, dec): Codec.t 'a) :Codec.t (Js.Array.t 'a) => {
+  let encode value => Json.array (Js.Array.map enc value);
+  let decode json => Util.decodeRawArray json >>= Util.decodeArrayElements dec;
   (encode, decode)
 };
 
@@ -118,37 +72,14 @@ let fix (f: Codec.t 'a => Codec.t 'a) :Codec.t 'a => {
   (encode, decode)
 };
 
-let decodeMandatoryField (decode: JsonDecoder.t 'a) name dict :Decoder.result 'a =>
-  Result.fromOption (Dict.get dict name) ("Field '" ^ name ^ "' not found") >>= decode;
-
-let decodeOptionalField decode name dict :Decoder.result (option 'a) =>
-  Result.Ok (Dict.get dict name) >>= (
-    fun
-    | Some x => decode x |> Result.map Option.some
-    | None => Result.Ok None
-  );
-
-let buildDict (fields: list (option (Dict.key, Json.t))) :FieldDecoder.dict => {
-  let dict = Dict.empty ();
-  let rec loop remaining =>
-    switch remaining {
-    | [] => dict
-    | [Some (name, value), ...tail] =>
-      Dict.set dict name value;
-      loop tail
-    | [None, ...tail] => loop tail
-    };
-  loop fields
-};
-
 let field (name: Dict.key) ((enc, dec): Codec.t 'a) :FieldCodec.t 'a => (
   fun value => Some (name, enc value),
-  decodeMandatoryField dec name
+  Util.decodeMandatoryField dec name
 );
 
 let optional (name: Dict.key) ((enc, dec): Codec.t 'a) :FieldCodec.t (option 'a) => (
   Option.map ((fun value => (name, enc value)) [@bs]),
-  decodeOptionalField dec name
+  Util.decodeOptionalField dec name
 );
 
 let optionalNullable (name: Dict.key) (codec: Codec.t 'a) :FieldCodec.t (option 'a) => {
@@ -162,19 +93,19 @@ let optionalNullable (name: Dict.key) (codec: Codec.t 'a) :FieldCodec.t (option 
 
 let object0: Codec.t unit = (
   Function.const (Json.object_ (Dict.empty ())),
-  decodeRawObject >>> Result.map (Function.const ())
+  Util.decodeRawObject >>> Result.map (Function.const ())
 );
 
 let object1 ((enc1, dec1): FieldCodec.t 'a) :Codec.t 'a => {
-  let encode v1 => Json.object_ (buildDict [enc1 v1]);
-  let decode json => decodeRawObject json >>= (fun dict => dec1 dict);
+  let encode v1 => Json.object_ (Util.buildDict [enc1 v1]);
+  let decode json => Util.decodeRawObject json >>= (fun dict => dec1 dict);
   (encode, decode)
 };
 
 let object2 ((enc1, dec1): FieldCodec.t 'a) ((enc2, dec2): FieldCodec.t 'b) :Codec.t ('a, 'b) => {
-  let encode (v1, v2) => Json.object_ (buildDict [enc1 v1, enc2 v2]);
+  let encode (v1, v2) => Json.object_ (Util.buildDict [enc1 v1, enc2 v2]);
   let decode json =>
-    decodeRawObject json >>= (
+    Util.decodeRawObject json >>= (
       fun dict => dec1 dict >>= (fun v1 => dec2 dict >>= (fun v2 => Result.Ok (v1, v2)))
     );
   (encode, decode)
@@ -185,9 +116,9 @@ let object3
     ((enc2, dec2): FieldCodec.t 'b)
     ((enc3, dec3): FieldCodec.t 'c)
     :Codec.t ('a, 'b, 'c) => {
-  let encode (v1, v2, v3) => Json.object_ (buildDict [enc1 v1, enc2 v2, enc3 v3]);
+  let encode (v1, v2, v3) => Json.object_ (Util.buildDict [enc1 v1, enc2 v2, enc3 v3]);
   let decode json =>
-    decodeRawObject json >>= (
+    Util.decodeRawObject json >>= (
       fun dict =>
         dec1 dict >>= (
           fun v1 => dec2 dict >>= (fun v2 => dec3 dict >>= (fun v3 => Result.Ok (v1, v2, v3)))
@@ -202,9 +133,10 @@ let object4
     ((enc3, dec3): FieldCodec.t 'c)
     ((enc4, dec4): FieldCodec.t 'd)
     :Codec.t ('a, 'b, 'c, 'd) => {
-  let encode (v1, v2, v3, v4) => Json.object_ (buildDict [enc1 v1, enc2 v2, enc3 v3, enc4 v4]);
+  let encode (v1, v2, v3, v4) =>
+    Json.object_ (Util.buildDict [enc1 v1, enc2 v2, enc3 v3, enc4 v4]);
   let decode json =>
-    decodeRawObject json >>= (
+    Util.decodeRawObject json >>= (
       fun dict =>
         dec1 dict >>= (
           fun v1 =>
@@ -225,9 +157,9 @@ let object5
     ((enc5, dec5): FieldCodec.t 'e)
     :Codec.t ('a, 'b, 'c, 'd, 'e) => {
   let encode (v1, v2, v3, v4, v5) =>
-    Json.object_ (buildDict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5]);
+    Json.object_ (Util.buildDict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5]);
   let decode json =>
-    decodeRawObject json >>= (
+    Util.decodeRawObject json >>= (
       fun dict =>
         dec1 dict >>= (
           fun v1 =>
@@ -254,9 +186,9 @@ let object6
     ((enc6, dec6): FieldCodec.t 'f)
     :Codec.t ('a, 'b, 'c, 'd, 'e, 'f) => {
   let encode (v1, v2, v3, v4, v5, v6) =>
-    Json.object_ (buildDict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5, enc6 v6]);
+    Json.object_ (Util.buildDict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5, enc6 v6]);
   let decode json =>
-    decodeRawObject json >>= (
+    Util.decodeRawObject json >>= (
       fun dict =>
         dec1 dict >>= (
           fun v1 =>
@@ -287,9 +219,9 @@ let object7
     ((enc7, dec7): FieldCodec.t 'g)
     :Codec.t ('a, 'b, 'c, 'd, 'e, 'f, 'g) => {
   let encode (v1, v2, v3, v4, v5, v6, v7) =>
-    Json.object_ (buildDict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5, enc6 v6, enc7 v7]);
+    Json.object_ (Util.buildDict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5, enc6 v6, enc7 v7]);
   let decode json =>
-    decodeRawObject json >>= (
+    Util.decodeRawObject json >>= (
       fun dict =>
         dec1 dict >>= (
           fun v1 =>
@@ -326,10 +258,10 @@ let object8
     :Codec.t ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h) => {
   let encode (v1, v2, v3, v4, v5, v6, v7, v8) =>
     Json.object_ (
-      buildDict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5, enc6 v6, enc7 v7, enc8 v8]
+      Util.buildDict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5, enc6 v6, enc7 v7, enc8 v8]
     );
   let decode json =>
-    decodeRawObject json >>= (
+    Util.decodeRawObject json >>= (
       fun dict =>
         dec1 dict >>= (
           fun v1 =>
@@ -372,10 +304,20 @@ let object9
     :Codec.t ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i) => {
   let encode (v1, v2, v3, v4, v5, v6, v7, v8, v9) =>
     Json.object_ (
-      buildDict [enc1 v1, enc2 v2, enc3 v3, enc4 v4, enc5 v5, enc6 v6, enc7 v7, enc8 v8, enc9 v9]
+      Util.buildDict [
+        enc1 v1,
+        enc2 v2,
+        enc3 v3,
+        enc4 v4,
+        enc5 v5,
+        enc6 v6,
+        enc7 v7,
+        enc8 v8,
+        enc9 v9
+      ]
     );
   let decode json =>
-    decodeRawObject json >>= (
+    Util.decodeRawObject json >>= (
       fun dict =>
         dec1 dict >>= (
           fun v1 =>
@@ -422,7 +364,7 @@ let object10
     :Codec.t ('a, 'b, 'c, 'd, 'e, 'f, 'g, 'h, 'i, 'j) => {
   let encode (v1, v2, v3, v4, v5, v6, v7, v8, v9, v10) =>
     Json.object_ (
-      buildDict [
+      Util.buildDict [
         enc1 v1,
         enc2 v2,
         enc3 v3,
@@ -436,7 +378,7 @@ let object10
       ]
     );
   let decode json =>
-    decodeRawObject json >>= (
+    Util.decodeRawObject json >>= (
       fun dict =>
         dec1 dict >>= (
           fun v1 =>
