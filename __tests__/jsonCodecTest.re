@@ -396,4 +396,35 @@ let () =
           expect (C.decodeJson codec intTreeJson) |> toEqual (Js.Result.Ok intTree)
         );
       });
+
+      describe "constant" (fun () => {
+        describe "constant string" (fun () => {
+          let codec = C.constant C.string "foo";
+
+          test "encoding" (fun () =>
+            expect (C.encodeJson codec "anything") |> toEqual jsonString
+          );
+          test "decoding success" (fun () =>
+            expect (C.decodeJson codec jsonString) |> toEqual (Js.Result.Ok "foo")
+          );
+          test "decoding failure, wrong value" (fun () =>
+            expect (C.decodeJson codec "\"bar\"") |> toEqual (Js.Result.Error "Expected constant value \"foo\"")
+          );
+          test "decoding failure, wrong type" (fun () =>
+            expect (C.decodeJson codec jsonNumberArray) |> toEqual (Js.Result.Error "Expected string")
+          );
+        });
+        describe "constant field value" (fun () => {
+          let fieldCodec = C.field "type" (C.constant C.string "X");
+          let objectCodec = C.object1 fieldCodec;
+          let expectedJson = {js|{"type":"X"}|js};
+
+          test "encoding" (fun () =>
+            expect (C.encodeJson spaces::0 objectCodec "...") |> toEqual expectedJson
+          );
+          test "decoding" (fun () =>
+            expect (C.decodeJson objectCodec expectedJson) |> toEqual (Js.Result.Ok "X")
+          );
+        })
+      });
     })

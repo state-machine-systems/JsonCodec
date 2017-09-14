@@ -29,6 +29,14 @@ let validate
   fun x => dec x >>= f
 );
 
+let constant ((enc, dec): GenericCodec.t 'a 'c 'd) (value: 'a) :GenericCodec.t 'a 'c 'd => {
+  let checkValue =
+    fun
+    | v when v == value => Result.Ok v
+    | _ => Result.Error ("Expected constant value " ^ encodeJson spaces::0 (enc, dec) value);
+  validate checkValue (Function.const (enc value), dec)
+};
+
 let number: Codec.t float = (Json.number, Util.decodeRawNumber);
 
 let int: Codec.t int = number |> validate Util.validInt |> wrap float_of_int int_of_float;
