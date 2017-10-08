@@ -18,7 +18,8 @@
 *.annot
 *.cmj
 *.bak
-lib/bs
+lib/
+node_modules/
 *.mlast
 *.mliast
 .vscode
