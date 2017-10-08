@@ -427,4 +427,25 @@ let () =
           );
         })
       });
+
+      describe "dict" (fun () => {
+        let codec = C.dict C.int;
+        let emptyDict = Js.Dict.empty ();
+        let emptyDictJson = {js|{}|js};
+        let nonEmptyDict = Js.Dict.fromArray [| ("x", 1), ("y", 2) |];
+        let nonEmptyDictJson = {js|{"x":1,"y":2}|js};
+
+        test "empty encoding" (fun () =>
+          expect (C.encodeJson spaces::0 codec emptyDict) |> toEqual emptyDictJson
+        );
+        test "empty decoding" (fun () =>
+          expect (C.decodeJson codec emptyDictJson) |> toEqual (Js.Result.Ok emptyDict)
+        );
+        test "non-empty encoding" (fun () =>
+          expect (C.encodeJson spaces::0 codec nonEmptyDict) |> toEqual nonEmptyDictJson
+        );
+        test "non-empty decoding" (fun () =>
+          expect (C.decodeJson codec nonEmptyDictJson) |> toEqual (Js.Result.Ok nonEmptyDict)
+        );
+      });
     })

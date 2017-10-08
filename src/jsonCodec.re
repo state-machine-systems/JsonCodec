@@ -69,6 +69,32 @@ let array ((enc, dec): Codec.t 'a) :Codec.t (Js.Array.t 'a) => {
   (encode, decode)
 };
 
+let dict ((enc, dec): Codec.t 'a) :Codec.t (Dict.t 'a) => {
+  let encode dict => Json.object_ (Dict.map ((fun x => enc x) [@bs]) dict);
+  let decode json =>
+    Util.decodeRawObject json >>= (
+      fun obj => {
+        let keys = Dict.keys obj;
+        let length = Array.length keys;
+        let dict = Dict.empty ();
+        let rec loop i =>
+          if (i < length) {
+            let k = keys.(i);
+            dec (Dict.unsafeGet obj k) >>= (
+              fun decoded => {
+                Dict.set dict k decoded;
+                loop (i + 1)
+              }
+            )
+          } else {
+            Result.Ok dict
+          };
+        loop 0
+      }
+    );
+  (encode, decode)
+};
+
 let fix (f: Codec.t 'a => Codec.t 'a) :Codec.t 'a => {
   let encoderRef: ref (option (JsonEncoder.t 'a)) = ref None;
   let decoderRef: ref (option (JsonDecoder.t 'a)) = ref None;
