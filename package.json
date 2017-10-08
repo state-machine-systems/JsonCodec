@@ -1,5 +1,5 @@
 {
-  "name": "bs-json-codec",
+  "name": "json-codec",
   "version": "0.1.0",
   "scripts": {
     "clean": "bsb -clean-world",
@@ -10,7 +10,8 @@
   },
   "keywords": [
     "JSON",
-    "BuckleScript"
+    "BuckleScript",
+    "Reason"
   ],
   "license": "Apache-2.0",
   "devDependencies": {
