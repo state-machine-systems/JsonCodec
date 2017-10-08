@@ -448,4 +448,25 @@ let () =
           expect (C.decodeJson codec nonEmptyDictJson) |> toEqual (Js.Result.Ok nonEmptyDict)
         );
       });
+
+      describe "list" (fun () => {
+        let codec = C.list C.int;
+        let emptyList = [];
+        let emptyListJson = {js|[]|js};
+        let nonEmptyList = [1, 2, 3];
+        let nonEmptyListJson = {js|[1,2,3]|js};
+
+        test "empty encoding" (fun () =>
+          expect (C.encodeJson spaces::0 codec emptyList) |> toEqual emptyListJson
+        );
+        test "empty decoding" (fun () =>
+          expect (C.decodeJson codec emptyListJson) |> toEqual (Js.Result.Ok emptyList)
+        );
+        test "non-empty encoding" (fun () =>
+          expect (C.encodeJson spaces::0 codec nonEmptyList) |> toEqual nonEmptyListJson
+        );
+        test "non-empty decoding" (fun () =>
+          expect (C.decodeJson codec nonEmptyListJson) |> toEqual (Js.Result.Ok nonEmptyList)
+        );
+      });
     })

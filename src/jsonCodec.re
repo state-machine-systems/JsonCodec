@@ -69,6 +69,8 @@ let array ((enc, dec): Codec.t 'a) :Codec.t (Js.Array.t 'a) => {
   (encode, decode)
 };
 
+let list (codec: Codec.t 'a) :Codec.t (list 'a) => wrap Array.of_list Array.to_list (array codec);
+
 let dict ((enc, dec): Codec.t 'a) :Codec.t (Dict.t 'a) => {
   let encode dict => Json.object_ (Dict.map ((fun x => enc x) [@bs]) dict);
   let decode json =>
