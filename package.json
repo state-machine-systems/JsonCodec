@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "scripts": {
     "clean": "bsb -clean-world",
-    "generate": "node scripts/generate.js && refmt --in-place src/jsonCodec_object.re",
+    "generate": "node scripts/generate.js && bsrefmt --in-place src/jsonCodec_object.re",
     "build": "npm run generate && bsb -make-world",
     "watch": "bsb -make-world -w",
     "test": "npm run build && jest",
-    "format": "refmt --in-place src/*.re"
+    "format": "bsrefmt --in-place src/*.re"
   },
   "keywords": [
     "JSON",
