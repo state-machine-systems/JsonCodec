@@ -1,6 +1,7 @@
 {
   "name": "json-codec",
   "version": "0.1.0",
+  "description": "JSON combinator library for BuckleScript/Reason ",
   "scripts": {
     "clean": "bsb -clean-world",
     "generate": "node scripts/generate.js && bsrefmt --in-place src/jsonCodec_object.re",
@@ -9,6 +10,12 @@
     "test": "npm run build && jest",
     "format": "bsrefmt --in-place src/*.re"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/state-machine-systems/JsonCodec.git"
+  },
+  "homepage": "https://github.com/state-machine-systems/JsonCodec#readme",
+  "bugs": "https://github.com/state-machine-systems/JsonCodec/issues",
   "keywords": [
     "JSON",
     "BuckleScript",
