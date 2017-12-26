@@ -1,7 +1,7 @@
 {
   "name": "json-codec",
   "version": "0.1.0",
-  "description": "JSON combinator library for BuckleScript/Reason ",
+  "description": "JSON combinator library for BuckleScript/Reason",
   "scripts": {
     "clean": "bsb -clean-world",
     "generate": "node scripts/generate.js && bsrefmt --in-place src/jsonCodec_object.re",
