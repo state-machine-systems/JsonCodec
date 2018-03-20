@@ -24,7 +24,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "bs-jest": "^0.1.0",
-    "bs-platform": "1.9.1",
+    "bs-platform": "2.2.3",
     "jest-cli": "^20.0.4"
   }
 }
