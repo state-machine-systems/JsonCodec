@@ -42,4 +42,4 @@ Printf.printf("JSON: %s\n", encoded);
 ```
 
 
-&copy; 2017 State Machine Systems Ltd. [Apache Licence, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+&copy; 2017-2018 State Machine Systems Ltd. [Apache Licence, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
