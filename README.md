@@ -19,22 +19,26 @@ let json = {js|
 /* Define a codec for the above object type */
 let codec =
   JsonCodec.(
-    object4
-      (field "name" string) (field "lat" number) (field "long" number) (field "height" number)
+    object4(
+      field("name", string),
+      field("lat", number),
+      field("long", number),
+      field("height", number)
+    )
   );
 
 /* Decoding */
-let () =
-  switch (JsonCodec.decodeJson codec json) {
-  | Js.Result.Ok (name, lat, lon, height) =>
-    Printf.printf "name='%s' location=%f,%f height=%f\n" name lat lon height
-  | Js.Result.Error error => Printf.printf "Decoding error: %s" error
-  };
+switch (JsonCodec.decodeJson(codec, json)) {
+| Js.Result.Ok((name, lat, lon, height)) =>
+  Printf.printf("name='%s' location=%f,%f height=%f\n", name, lat, lon, height)
+| Js.Result.Error(error) => Printf.printf("Decoding error: %s", error)
+};
 
 /* Encoding */
-let encoded = JsonCodec.encodeJson codec ("Machu Picchu", -13.163333, -72.545556, 2430.0);
+let encoded =
+  JsonCodec.encodeJson(codec, ("Machu Picchu", -13.163333, -72.545556, 2430.0));
 
-let () = Printf.printf "JSON: %s\n" encoded;
+Printf.printf("JSON: %s\n", encoded);
 ```
 
 
