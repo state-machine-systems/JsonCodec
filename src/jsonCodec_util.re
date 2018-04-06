@@ -6,7 +6,7 @@ let parseJson = s =>
   try (Result.Ok(Js.Json.parseExn(s))) {
   | Js.Exn.Error(e) =>
     Result.Error(
-      Js.Exn.message(e) |> Js.Option.default("JSON parsing failed"),
+      Js.Exn.message(e) |> Js.Option.getWithDefault("JSON parsing failed"),
     )
   };
 
