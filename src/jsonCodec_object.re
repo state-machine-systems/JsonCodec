@@ -1,6 +1,5 @@
 /* This file is auto-generated. Please do not modify it. */
 open JsonCodec_result.Ops;
-
 let object1 =
     ((enc1, dec1): JsonCodec_core.FieldCodec.t('a))
     : JsonCodec_core.Codec.t('a) => {
@@ -9,7 +8,6 @@ let object1 =
     JsonCodec_util.decodeRawObject(json) >>= (dict => dec1(dict));
   (encode, decode);
 };
-
 let object2 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -22,11 +20,11 @@ let object2 =
     JsonCodec_util.decodeRawObject(json)
     >>= (
       dict =>
-        dec1(dict) >>= (v1 => dec2(dict) >>= (v2 => Js.Result.Ok((v1, v2))))
+        dec1(dict)
+        >>= (v1 => dec2(dict) >>= (v2 => Belt.Result.Ok((v1, v2))))
     );
   (encode, decode);
 };
-
 let object3 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -45,12 +43,11 @@ let object3 =
         >>= (
           v1 =>
             dec2(dict)
-            >>= (v2 => dec3(dict) >>= (v3 => Js.Result.Ok((v1, v2, v3))))
+            >>= (v2 => dec3(dict) >>= (v3 => Belt.Result.Ok((v1, v2, v3))))
         )
     );
   (encode, decode);
 };
-
 let object4 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -74,14 +71,14 @@ let object4 =
               v2 =>
                 dec3(dict)
                 >>= (
-                  v3 => dec4(dict) >>= (v4 => Js.Result.Ok((v1, v2, v3, v4)))
+                  v3 =>
+                    dec4(dict) >>= (v4 => Belt.Result.Ok((v1, v2, v3, v4)))
                 )
             )
         )
     );
   (encode, decode);
 };
-
 let object5 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -117,7 +114,7 @@ let object5 =
                     >>= (
                       v4 =>
                         dec5(dict)
-                        >>= (v5 => Js.Result.Ok((v1, v2, v3, v4, v5)))
+                        >>= (v5 => Belt.Result.Ok((v1, v2, v3, v4, v5)))
                     )
                 )
             )
@@ -125,7 +122,6 @@ let object5 =
     );
   (encode, decode);
 };
-
 let object6 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -166,7 +162,9 @@ let object6 =
                         >>= (
                           v5 =>
                             dec6(dict)
-                            >>= (v6 => Js.Result.Ok((v1, v2, v3, v4, v5, v6)))
+                            >>= (
+                              v6 => Belt.Result.Ok((v1, v2, v3, v4, v5, v6))
+                            )
                         )
                     )
                 )
@@ -175,7 +173,6 @@ let object6 =
     );
   (encode, decode);
 };
-
 let object7 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -223,7 +220,15 @@ let object7 =
                                 dec7(dict)
                                 >>= (
                                   v7 =>
-                                    Js.Result.Ok((v1, v2, v3, v4, v5, v6, v7))
+                                    Belt.Result.Ok((
+                                      v1,
+                                      v2,
+                                      v3,
+                                      v4,
+                                      v5,
+                                      v6,
+                                      v7,
+                                    ))
                                 )
                             )
                         )
@@ -234,7 +239,6 @@ let object7 =
     );
   (encode, decode);
 };
-
 let object8 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -287,7 +291,7 @@ let object8 =
                                     dec8(dict)
                                     >>= (
                                       v8 =>
-                                        Js.Result.Ok((
+                                        Belt.Result.Ok((
                                           v1,
                                           v2,
                                           v3,
@@ -308,7 +312,6 @@ let object8 =
     );
   (encode, decode);
 };
-
 let object9 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -366,7 +369,7 @@ let object9 =
                                         dec9(dict)
                                         >>= (
                                           v9 =>
-                                            Js.Result.Ok((
+                                            Belt.Result.Ok((
                                               v1,
                                               v2,
                                               v3,
@@ -389,7 +392,6 @@ let object9 =
     );
   (encode, decode);
 };
-
 let object10 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -452,7 +454,7 @@ let object10 =
                                             dec10(dict)
                                             >>= (
                                               v10 =>
-                                                Js.Result.Ok((
+                                                Belt.Result.Ok((
                                                   v1,
                                                   v2,
                                                   v3,
@@ -477,7 +479,6 @@ let object10 =
     );
   (encode, decode);
 };
-
 let object11 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -545,7 +546,7 @@ let object11 =
                                                 dec11(dict)
                                                 >>= (
                                                   v11 =>
-                                                    Js.Result.Ok((
+                                                    Belt.Result.Ok((
                                                       v1,
                                                       v2,
                                                       v3,
@@ -572,7 +573,6 @@ let object11 =
     );
   (encode, decode);
 };
-
 let object12 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -647,7 +647,7 @@ let object12 =
                                                     dec12(dict)
                                                     >>= (
                                                       v12 =>
-                                                        Js.Result.Ok((
+                                                        Belt.Result.Ok((
                                                           v1,
                                                           v2,
                                                           v3,
@@ -676,7 +676,6 @@ let object12 =
     );
   (encode, decode);
 };
-
 let object13 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -756,7 +755,7 @@ let object13 =
                                                         dec13(dict)
                                                         >>= (
                                                           v13 =>
-                                                            Js.Result.Ok((
+                                                            Belt.Result.Ok((
                                                               v1,
                                                               v2,
                                                               v3,
@@ -787,7 +786,6 @@ let object13 =
     );
   (encode, decode);
 };
-
 let object14 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -873,7 +871,7 @@ let object14 =
                                                             dec14(dict)
                                                             >>= (
                                                               v14 =>
-                                                                Js.Result.Ok((
+                                                                Belt.Result.Ok((
                                                                   v1,
                                                                   v2,
                                                                   v3,
@@ -906,7 +904,6 @@ let object14 =
     );
   (encode, decode);
 };
-
 let object15 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -997,7 +994,7 @@ let object15 =
                                                                 dec15(dict)
                                                                 >>= (
                                                                   v15 =>
-                                                                    Js.Result.Ok((
+                                                                    Belt.Result.Ok((
                                                                     v1,
                                                                     v2,
                                                                     v3,
@@ -1032,7 +1029,6 @@ let object15 =
     );
   (encode, decode);
 };
-
 let object16 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -1149,7 +1145,7 @@ let object16 =
                                                                     )
                                                                     >>= (
                                                                     v16 =>
-                                                                    Js.Result.Ok((
+                                                                    Belt.Result.Ok((
                                                                     v1,
                                                                     v2,
                                                                     v3,
@@ -1186,7 +1182,6 @@ let object16 =
     );
   (encode, decode);
 };
-
 let object17 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -1311,7 +1306,7 @@ let object17 =
                                                                     )
                                                                     >>= (
                                                                     v17 =>
-                                                                    Js.Result.Ok((
+                                                                    Belt.Result.Ok((
                                                                     v1,
                                                                     v2,
                                                                     v3,
@@ -1350,7 +1345,6 @@ let object17 =
     );
   (encode, decode);
 };
-
 let object18 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -1502,7 +1496,7 @@ let object18 =
                                                                     )
                                                                     >>= (
                                                                     v18 =>
-                                                                    Js.Result.Ok((
+                                                                    Belt.Result.Ok((
                                                                     v1,
                                                                     v2,
                                                                     v3,
@@ -1543,7 +1537,6 @@ let object18 =
     );
   (encode, decode);
 };
-
 let object19 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -1704,7 +1697,7 @@ let object19 =
                                                                     )
                                                                     >>= (
                                                                     v19 =>
-                                                                    Js.Result.Ok((
+                                                                    Belt.Result.Ok((
                                                                     v1,
                                                                     v2,
                                                                     v3,
@@ -1747,7 +1740,6 @@ let object19 =
     );
   (encode, decode);
 };
-
 let object20 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -1917,7 +1909,7 @@ let object20 =
                                                                     )
                                                                     >>= (
                                                                     v20 =>
-                                                                    Js.Result.Ok((
+                                                                    Belt.Result.Ok((
                                                                     v1,
                                                                     v2,
                                                                     v3,
@@ -1962,7 +1954,6 @@ let object20 =
     );
   (encode, decode);
 };
-
 let object21 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -2141,7 +2132,7 @@ let object21 =
                                                                     )
                                                                     >>= (
                                                                     v21 =>
-                                                                    Js.Result.Ok((
+                                                                    Belt.Result.Ok((
                                                                     v1,
                                                                     v2,
                                                                     v3,
@@ -2188,7 +2179,6 @@ let object21 =
     );
   (encode, decode);
 };
-
 let object22 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -2376,7 +2366,7 @@ let object22 =
                                                                     )
                                                                     >>= (
                                                                     v22 =>
-                                                                    Js.Result.Ok((
+                                                                    Belt.Result.Ok((
                                                                     v1,
                                                                     v2,
                                                                     v3,
@@ -2425,7 +2415,6 @@ let object22 =
     );
   (encode, decode);
 };
-
 let object23 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -2622,7 +2611,7 @@ let object23 =
                                                                     )
                                                                     >>= (
                                                                     v23 =>
-                                                                    Js.Result.Ok((
+                                                                    Belt.Result.Ok((
                                                                     v1,
                                                                     v2,
                                                                     v3,
@@ -2673,7 +2662,6 @@ let object23 =
     );
   (encode, decode);
 };
-
 let object24 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -2879,7 +2867,7 @@ let object24 =
                                                                     )
                                                                     >>= (
                                                                     v24 =>
-                                                                    Js.Result.Ok((
+                                                                    Belt.Result.Ok((
                                                                     v1,
                                                                     v2,
                                                                     v3,
@@ -2932,7 +2920,6 @@ let object24 =
     );
   (encode, decode);
 };
-
 let object25 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -3147,7 +3134,7 @@ let object25 =
                                                                     )
                                                                     >>= (
                                                                     v25 =>
-                                                                    Js.Result.Ok((
+                                                                    Belt.Result.Ok((
                                                                     v1,
                                                                     v2,
                                                                     v3,
@@ -3202,7 +3189,6 @@ let object25 =
     );
   (encode, decode);
 };
-
 let object26 =
     (
       (enc1, dec1): JsonCodec_core.FieldCodec.t('a),
@@ -3426,7 +3412,7 @@ let object26 =
                                                                     )
                                                                     >>= (
                                                                     v26 =>
-                                                                    Js.Result.Ok((
+                                                                    Belt.Result.Ok((
                                                                     v1,
                                                                     v2,
                                                                     v3,

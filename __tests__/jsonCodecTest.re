@@ -1,6 +1,7 @@
 open Jest;
 
 module C = JsonCodec;
+module Result = JsonCodec.Result;
 
 let formatJsonString = s => Js.Json.parseExn(s) |> Js.Json.stringify;
 
@@ -34,16 +35,16 @@ let () =
           );
           test("decoding success", () =>
             expect(C.decodeJson(C.number, "3.14"))
-            |> toEqual(Js.Result.Ok(3.14))
+            |> toEqual(Result.Ok(3.14))
           );
           test("decoding failure, not a number", () =>
             expect(C.decodeJson(C.number, jsonString))
-            |> toEqual(Js.Result.Error("Expected number"))
+            |> toEqual(Result.Error("Expected number"))
           );
           test("decoding failure, invalid JSON", () =>
             expect(C.decodeJson(C.number, "_"))
             |> toEqual(
-                 Js.Result.Error("Unexpected token _ in JSON at position 0"),
+                 Result.Error("Unexpected token _ in JSON at position 0"),
                )
           );
         });
@@ -52,14 +53,14 @@ let () =
             expect(C.encodeJson(C.int, 1)) |> toEqual("1")
           );
           test("decoding success, no decimal point", () =>
-            expect(C.decodeJson(C.int, "1")) |> toEqual(Js.Result.Ok(1))
+            expect(C.decodeJson(C.int, "1")) |> toEqual(Result.Ok(1))
           );
           test("decoding success, zero after decimal point", () =>
-            expect(C.decodeJson(C.int, "1.0")) |> toEqual(Js.Result.Ok(1))
+            expect(C.decodeJson(C.int, "1.0")) |> toEqual(Result.Ok(1))
           );
           test("decoding failure, can't represent as int", () =>
             expect(C.decodeJson(C.int, "1.234"))
-            |> toEqual(Js.Result.Error("Not an int: 1.234"))
+            |> toEqual(Result.Error("Not an int: 1.234"))
           );
         });
         describe("string", () => {
@@ -68,11 +69,11 @@ let () =
           );
           test("decoding success", () =>
             expect(C.decodeJson(C.string, jsonString))
-            |> toEqual(Js.Result.Ok("foo"))
+            |> toEqual(Result.Ok("foo"))
           );
           test("decoding failure", () =>
             expect(C.decodeJson(C.string, "0.5"))
-            |> toEqual(Js.Result.Error("Expected string"))
+            |> toEqual(Result.Error("Expected string"))
           );
         });
         describe("bool", () => {
@@ -81,11 +82,11 @@ let () =
           );
           test("decoding success", () =>
             expect(C.decodeJson(C.bool, "false"))
-            |> toEqual(Js.Result.Ok(false))
+            |> toEqual(Result.Ok(false))
           );
           test("decoding failure", () =>
             expect(C.decodeJson(C.bool, jsonString))
-            |> toEqual(Js.Result.Error("Expected boolean"))
+            |> toEqual(Result.Error("Expected boolean"))
           );
         });
         describe("null", () => {
@@ -93,11 +94,11 @@ let () =
             expect(C.encodeJson(C.null, ())) |> toEqual("null")
           );
           test("decoding success", () =>
-            expect(C.decodeJson(C.null, "null")) |> toEqual(Js.Result.Ok())
+            expect(C.decodeJson(C.null, "null")) |> toEqual(Result.Ok())
           );
           test("decoding failure", () =>
             expect(C.decodeJson(C.null, "true"))
-            |> toEqual(Js.Result.Error("Expected null"))
+            |> toEqual(Result.Error("Expected null"))
           );
         });
         describe("nullable", () => {
@@ -107,7 +108,7 @@ let () =
           );
           test("empty decoding success", () =>
             expect(C.decodeJson(C.nullable(C.string), "null"))
-            |> toEqual(Js.Result.Ok(None))
+            |> toEqual(Result.Ok(None))
           );
           test("non-empty encoding", () =>
             expect(C.encodeJson(C.nullable(C.string), Some("foo")))
@@ -115,11 +116,11 @@ let () =
           );
           test("non-empty decoding success", () =>
             expect(C.decodeJson(C.nullable(C.number), "1.0"))
-            |> toEqual(Js.Result.Ok(Some(1.0)))
+            |> toEqual(Result.Ok(Some(1.0)))
           );
           test("decoding failure", () =>
             expect(C.decodeJson(C.nullable(C.string), "1.0"))
-            |> toEqual(Js.Result.Error("Expected string"))
+            |> toEqual(Result.Error("Expected string"))
           );
         });
         describe("array", () => {
@@ -128,7 +129,7 @@ let () =
           );
           test("empty decoding", () =>
             expect(C.decodeJson(C.array(C.string), "[]"))
-            |> toEqual(Js.Result.Ok([||]))
+            |> toEqual(Result.Ok([||]))
           );
           test("non-empty encoding", () =>
             expect(
@@ -139,15 +140,15 @@ let () =
           );
           test("non-empty decoding success", () =>
             expect(C.decodeJson(C.array(C.number), jsonNumberArray))
-            |> toEqual(Js.Result.Ok([|1.1, 2.2|]))
+            |> toEqual(Result.Ok([|1.1, 2.2|]))
           );
           test("decoding failure", () =>
             expect(C.decodeJson(C.array(C.string), "true"))
-            |> toEqual(Js.Result.Error("Expected array"))
+            |> toEqual(Result.Error("Expected array"))
           );
           test("element decoding failure", () =>
             expect(C.decodeJson(C.array(C.string), jsonNumberArray))
-            |> toEqual(Js.Result.Error("Expected string"))
+            |> toEqual(Result.Error("Expected string"))
           );
         });
         describe("object0", () => {
@@ -155,15 +156,15 @@ let () =
             expect(C.encodeJson(C.object0, ())) |> toEqual("{}")
           );
           test("decoding success", () =>
-            expect(C.decodeJson(C.object0, "{}")) |> toEqual(Js.Result.Ok())
+            expect(C.decodeJson(C.object0, "{}")) |> toEqual(Result.Ok())
           );
           test("decoding success, ignoring extra fields", () =>
             expect(C.decodeJson(C.object0, jsonSingleStringFieldObject))
-            |> toEqual(Js.Result.Ok())
+            |> toEqual(Result.Ok())
           );
           test("decoding failure", () =>
             expect(C.decodeJson(C.object0, "null"))
-            |> toEqual(Js.Result.Error("Expected object"))
+            |> toEqual(Result.Error("Expected object"))
           );
         });
         describe("object1", () => {
@@ -174,23 +175,23 @@ let () =
           );
           test("decoding success", () =>
             expect(C.decodeJson(codec, jsonSingleStringFieldObject))
-            |> toEqual(Js.Result.Ok("bar"))
+            |> toEqual(Result.Ok("bar"))
           );
           test("decoding success, ignoring extra fields", () =>
             expect(C.decodeJson(codec, jsonTwoFieldObject))
-            |> toEqual(Js.Result.Ok("bar"))
+            |> toEqual(Result.Ok("bar"))
           );
           test("decoding failure, not an object", () =>
             expect(C.decodeJson(codec, "false"))
-            |> toEqual(Js.Result.Error("Expected object"))
+            |> toEqual(Result.Error("Expected object"))
           );
           test("decoding failure, missing field", () =>
             expect(C.decodeJson(codec, "{}"))
-            |> toEqual(Js.Result.Error("Field 'foo' not found"))
+            |> toEqual(Result.Error("Field 'foo' not found"))
           );
           test("decoding failure, wrong field type", () =>
             expect(C.decodeJson(codec, jsonSingleNumberFieldObject))
-            |> toEqual(Js.Result.Error("Expected string"))
+            |> toEqual(Result.Error("Expected string"))
           );
         });
         describe("object2", () => {
@@ -202,23 +203,23 @@ let () =
           );
           test("decoding success", () =>
             expect(C.decodeJson(codec, jsonTwoFieldObject))
-            |> toEqual(Js.Result.Ok(("bar", true)))
+            |> toEqual(Result.Ok(("bar", true)))
           );
           test("decoding success, ignoring extra fields", () =>
             expect(C.decodeJson(codec, jsonThreeFieldObject))
-            |> toEqual(Js.Result.Ok(("bar", true)))
+            |> toEqual(Result.Ok(("bar", true)))
           );
           test("decoding failure, not an object", () =>
             expect(C.decodeJson(codec, "7.77"))
-            |> toEqual(Js.Result.Error("Expected object"))
+            |> toEqual(Result.Error("Expected object"))
           );
           test("decoding failure, missing field", () =>
             expect(C.decodeJson(codec, jsonSingleStringFieldObject))
-            |> toEqual(Js.Result.Error("Field 'baz' not found"))
+            |> toEqual(Result.Error("Field 'baz' not found"))
           );
           test("decoding failure, wrong field type", () =>
             expect(C.decodeJson(codec, jsonSingleNumberFieldObject))
-            |> toEqual(Js.Result.Error("Expected string"))
+            |> toEqual(Result.Error("Expected string"))
           );
         });
         describe("object3", () => {
@@ -234,23 +235,23 @@ let () =
           );
           test("decoding success", () =>
             expect(C.decodeJson(codec, jsonThreeFieldObject))
-            |> toEqual(Js.Result.Ok(("bar", true, 56.78)))
+            |> toEqual(Result.Ok(("bar", true, 56.78)))
           );
           test("decoding success, ignoring extra fields", () =>
             expect(C.decodeJson(codec, jsonFourFieldObject))
-            |> toEqual(Js.Result.Ok(("bar", true, 56.78)))
+            |> toEqual(Result.Ok(("bar", true, 56.78)))
           );
           test("decoding failure, not an object", () =>
             expect(C.decodeJson(codec, "null"))
-            |> toEqual(Js.Result.Error("Expected object"))
+            |> toEqual(Result.Error("Expected object"))
           );
           test("decoding failure, missing field", () =>
             expect(C.decodeJson(codec, jsonTwoFieldObject))
-            |> toEqual(Js.Result.Error("Field 'qux' not found"))
+            |> toEqual(Result.Error("Field 'qux' not found"))
           );
           test("decoding failure, wrong field type", () =>
             expect(C.decodeJson(codec, jsonSingleNumberFieldObject))
-            |> toEqual(Js.Result.Error("Expected string"))
+            |> toEqual(Result.Error("Expected string"))
           );
         });
         describe("object4", () => {
@@ -267,7 +268,7 @@ let () =
           );
           test("decoding", () =>
             expect(C.decodeJson(codec, jsonFourFieldObject))
-            |> toEqual(Js.Result.Ok(("bar", true, 56.78, ())))
+            |> toEqual(Result.Ok(("bar", true, 56.78, ())))
           );
         });
         describe("object5", () => {
@@ -289,7 +290,7 @@ let () =
           );
           test("decoding", () =>
             expect(C.decodeJson(codec, json))
-            |> toEqual(Js.Result.Ok((1, 2, 3, 4, 5)))
+            |> toEqual(Result.Ok((1, 2, 3, 4, 5)))
           );
         });
         describe("object6", () => {
@@ -312,7 +313,7 @@ let () =
           );
           test("decoding", () =>
             expect(C.decodeJson(codec, json))
-            |> toEqual(Js.Result.Ok((1, 2, 3, 4, 5, 6)))
+            |> toEqual(Result.Ok((1, 2, 3, 4, 5, 6)))
           );
         });
         describe("object7", () => {
@@ -336,7 +337,7 @@ let () =
           );
           test("decoding", () =>
             expect(C.decodeJson(codec, json))
-            |> toEqual(Js.Result.Ok((1, 2, 3, 4, 5, 6, 7)))
+            |> toEqual(Result.Ok((1, 2, 3, 4, 5, 6, 7)))
           );
         });
         describe("object8", () => {
@@ -361,7 +362,7 @@ let () =
           );
           test("decoding", () =>
             expect(C.decodeJson(codec, json))
-            |> toEqual(Js.Result.Ok((1, 2, 3, 4, 5, 6, 7, 8)))
+            |> toEqual(Result.Ok((1, 2, 3, 4, 5, 6, 7, 8)))
           );
         });
         describe("object9", () => {
@@ -389,7 +390,7 @@ let () =
           );
           test("decoding", () =>
             expect(C.decodeJson(codec, json))
-            |> toEqual(Js.Result.Ok((1, 2, 3, 4, 5, 6, 7, 8, 9)))
+            |> toEqual(Result.Ok((1, 2, 3, 4, 5, 6, 7, 8, 9)))
           );
         });
         describe("object10", () => {
@@ -422,7 +423,7 @@ let () =
           );
           test("decoding", () =>
             expect(C.decodeJson(codec, json))
-            |> toEqual(Js.Result.Ok((1, 2, 3, 4, 5, 6, 7, 8, 9, 10)))
+            |> toEqual(Result.Ok((1, 2, 3, 4, 5, 6, 7, 8, 9, 10)))
           );
         });
         describe("optional and nullable fields", () => {
@@ -441,7 +442,7 @@ let () =
             );
             test("empty decoding", () =>
               expect(C.decodeJson(nullableFieldCodec, jsonNullField))
-              |> toEqual(Js.Result.Ok(None))
+              |> toEqual(Result.Ok(None))
             );
             test("non-empty encoding", () =>
               expect(
@@ -453,7 +454,7 @@ let () =
               expect(
                 C.decodeJson(nullableFieldCodec, jsonSingleStringFieldObject),
               )
-              |> toEqual(Js.Result.Ok(Some("bar")))
+              |> toEqual(Result.Ok(Some("bar")))
             );
           });
           describe("optional field", () => {
@@ -463,7 +464,7 @@ let () =
             );
             test("empty decoding", () =>
               expect(C.decodeJson(optionalFieldCodec, jsonEmptyObject))
-              |> toEqual(Js.Result.Ok(None))
+              |> toEqual(Result.Ok(None))
             );
             test("non-empty encoding", () =>
               expect(
@@ -475,13 +476,13 @@ let () =
               expect(
                 C.decodeJson(optionalFieldCodec, jsonSingleStringFieldObject),
               )
-              |> toEqual(Js.Result.Ok(Some("bar")))
+              |> toEqual(Result.Ok(Some("bar")))
             );
             test("non-empty decoding failure", () =>
               expect(
                 C.decodeJson(optionalFieldCodec, jsonSingleNumberFieldObject),
               )
-              |> toEqual(Js.Result.Error("Expected string"))
+              |> toEqual(Result.Error("Expected string"))
             );
           });
           describe("optional nullable field", () => {
@@ -493,7 +494,7 @@ let () =
               expect(
                 C.decodeJson(optionalNullableFieldCodec, jsonEmptyObject),
               )
-              |> toEqual(Js.Result.Ok(None))
+              |> toEqual(Result.Ok(None))
             );
             test("null encoding", () =>
               expect(
@@ -507,7 +508,7 @@ let () =
             );
             test("null decoding", () =>
               expect(C.decodeJson(optionalNullableFieldCodec, jsonNullField))
-              |> toEqual(Js.Result.Ok(Some(None)))
+              |> toEqual(Result.Ok(Some(None)))
             );
             test("non-null encoding", () =>
               expect(
@@ -526,7 +527,7 @@ let () =
                   jsonSingleStringFieldObject,
                 ),
               )
-              |> toEqual(Js.Result.Ok(Some(Some("bar"))))
+              |> toEqual(Result.Ok(Some(Some("bar"))))
             );
           });
           describe("flattened optional nullable field", () => {
@@ -536,11 +537,11 @@ let () =
             );
             test("empty decoding, missing field", () =>
               expect(C.decodeJson(flattenedFieldCodec, jsonEmptyObject))
-              |> toEqual(Js.Result.Ok(None))
+              |> toEqual(Result.Ok(None))
             );
             test("empty decoding, null field", () =>
               expect(C.decodeJson(flattenedFieldCodec, jsonNullField))
-              |> toEqual(Js.Result.Ok(None))
+              |> toEqual(Result.Ok(None))
             );
             test("non-empty encoding", () =>
               expect(
@@ -555,7 +556,7 @@ let () =
                   jsonSingleStringFieldObject,
                 ),
               )
-              |> toEqual(Js.Result.Ok(Some("bar")))
+              |> toEqual(Result.Ok(Some("bar")))
             );
           });
         });
@@ -589,7 +590,7 @@ let () =
           );
           test("decoding", () =>
             expect(C.decodeJson(codec, intTreeJson))
-            |> toEqual(Js.Result.Ok(intTree))
+            |> toEqual(Result.Ok(intTree))
           );
         });
         describe("constant", () => {
@@ -600,15 +601,15 @@ let () =
             );
             test("decoding success", () =>
               expect(C.decodeJson(codec, jsonString))
-              |> toEqual(Js.Result.Ok("foo"))
+              |> toEqual(Result.Ok("foo"))
             );
             test("decoding failure, wrong value", () =>
               expect(C.decodeJson(codec, "\"bar\""))
-              |> toEqual(Js.Result.Error("Expected constant value \"foo\""))
+              |> toEqual(Result.Error("Expected constant value \"foo\""))
             );
             test("decoding failure, wrong type", () =>
               expect(C.decodeJson(codec, jsonNumberArray))
-              |> toEqual(Js.Result.Error("Expected string"))
+              |> toEqual(Result.Error("Expected string"))
             );
           });
           describe("constant field value", () => {
@@ -621,7 +622,7 @@ let () =
             );
             test("decoding", () =>
               expect(C.decodeJson(objectCodec, expectedJson))
-              |> toEqual(Js.Result.Ok("X"))
+              |> toEqual(Result.Ok("X"))
             );
           });
         });
@@ -637,7 +638,7 @@ let () =
           );
           test("empty decoding", () =>
             expect(C.decodeJson(codec, emptyDictJson))
-            |> toEqual(Js.Result.Ok(emptyDict))
+            |> toEqual(Result.Ok(emptyDict))
           );
           test("non-empty encoding", () =>
             expect(C.encodeJson(~spaces=0, codec, nonEmptyDict))
@@ -645,7 +646,7 @@ let () =
           );
           test("non-empty decoding", () =>
             expect(C.decodeJson(codec, nonEmptyDictJson))
-            |> toEqual(Js.Result.Ok(nonEmptyDict))
+            |> toEqual(Result.Ok(nonEmptyDict))
           );
         });
         describe("list", () => {
@@ -660,7 +661,7 @@ let () =
           );
           test("empty decoding", () =>
             expect(C.decodeJson(codec, emptyListJson))
-            |> toEqual(Js.Result.Ok(emptyList))
+            |> toEqual(Result.Ok(emptyList))
           );
           test("non-empty encoding", () =>
             expect(C.encodeJson(~spaces=0, codec, nonEmptyList))
@@ -668,7 +669,7 @@ let () =
           );
           test("non-empty decoding", () =>
             expect(C.decodeJson(codec, nonEmptyListJson))
-            |> toEqual(Js.Result.Ok(nonEmptyList))
+            |> toEqual(Result.Ok(nonEmptyList))
           );
         });
       }
