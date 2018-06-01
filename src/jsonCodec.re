@@ -49,9 +49,7 @@ let number: Codec.t(float) = (Json.number, Util.decodeRawNumber);
 let int: Codec.t(int) =
   number |> validate(Util.validInt) |> wrap(float_of_int, int_of_float);
 
-let bool: Codec.t(bool) =
-  (Json.boolean, Util.decodeRawBool)
-  |> wrap(Js.Boolean.to_js_boolean, Js.to_bool);
+let bool: Codec.t(bool) = (Json.boolean, Util.decodeRawBool);
 
 let string: Codec.t(string) = (Json.string, Util.decodeRawString);
 

@@ -1,4 +1,4 @@
-include Js.Result;
+include Belt.Result;
 
 let fromOption = (o: option('a), error: 'b) : t('a, 'b) =>
   switch (o) {

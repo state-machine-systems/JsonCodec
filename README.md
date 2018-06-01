@@ -23,15 +23,15 @@ let codec =
       field("name", string),
       field("lat", number),
       field("long", number),
-      field("height", number)
+      field("height", number),
     )
   );
 
 /* Decoding */
 switch (JsonCodec.decodeJson(codec, json)) {
-| Js.Result.Ok((name, lat, lon, height)) =>
+| Belt.Result.Ok((name, lat, lon, height)) =>
   Printf.printf("name='%s' location=%f,%f height=%f\n", name, lat, lon, height)
-| Js.Result.Error(error) => Printf.printf("Decoding error: %s", error)
+| Belt.Result.Error(error) => Printf.printf("Decoding error: %s", error)
 };
 
 /* Encoding */

@@ -49,7 +49,7 @@ function generateObjectCodec(n) {
         code.push(`>>= v${i} => dec${i + 1}(dict)`);
     }
     if (n > 1) {
-        code.push(`>>= v${n} => Js.Result.Ok((`);
+        code.push(`>>= v${n} => Belt.Result.Ok((`);
         code.push(numbers.map(i => `v${i}`).join(", "));
         code.push("))");
     }
