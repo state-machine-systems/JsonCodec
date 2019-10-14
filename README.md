@@ -22,7 +22,7 @@ let codec =
     object4(
       field("name", string),
       field("lat", number),
-      field("long", number),
+      field("lon", number),
       field("height", number),
     )
   );
